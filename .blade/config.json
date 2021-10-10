@@ -1,0 +1,21 @@
+{
+    "project info": {
+        "name": "microkernel",
+        "author": "Jerry.Yu",
+        "creator": "Jerry.Yu",
+        "email": "jerry.yu512@outlook.com",
+        "contributor": {
+            "Jerry.Yu": "jerry.yu512@outlook.com"
+        },
+        "create date": "2021-10-10",
+        "copyrightTag": "",
+        "project tool version": "",
+        "project version": "0.0.0",
+        "project language": "c++",
+        "project type": "lib",
+        "current platform": "x86",
+        "support platforms": {
+            "x86_64": "gcc"
+        }
+    }
+}
