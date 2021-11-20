@@ -27,10 +27,50 @@
  * 
  */
 #pragma once
+#include <stdexcept>
+#include <memory>
+#include <map>
+#include "extend.hpp"
 
 namespace ars {
 
 namespace microkernel {
+
+class DriverExtend;
+
+class Kernel {
+public:
+
+	static const char* logo(void) {
+		return R"(
+    										   _                           __                                  __
+  ____ _   _____   _____          ____ ___    (_)  _____   _____  ____    / /__  ___    _____   ____   ___    / /
+ / __ `/  / ___/  / ___/ ______  / __ `__ \  / /  / ___/  / ___/ / __ \  / //_/ / _ \  / ___/  / __ \ / _ \  / / 
+/ /_/ /  / /     (__  ) /_____/ / / / / / / / /  / /__   / /    / /_/ / / ,<   /  __/ / /     / / / //  __/ / /  
+\__,_/  /_/     /____/         /_/ /_/ /_/ /_/   \___/  /_/     \____/ /_/|_|  \___/ /_/     /_/ /_/ \___/ /_/   
+                                                                                                                 
+)";
+	}
+
+	// 添加模块
+	void AddExtend(std::shared_ptr<Extend> extend) {
+		if (!driver_extend_) {
+			throw std::logic_error("driver extend must loading at first.");
+		}
+	}
+
+private:
+	friend DriverExtend;
+	void set_driver_extend(DriverExtend* driver) {
+		if (driver_extend_) {
+			throw std::logic_error("driver extend setted.");
+		}
+		driver_extend_ = driver;
+	}
+
+	DriverExtend* driver_extend_;	///< 驱动模块
+	std::map<std::string, std::shared_ptr<Extend>> extends_;	///< 扩展模块
+};
 
 } // namespace microkernel
 
