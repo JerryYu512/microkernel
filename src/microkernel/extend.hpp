@@ -32,7 +32,7 @@
 #include "kernel_event.hpp"
 #include "typedef.hpp"
 
-namespace ars {
+namespace bio {
 
 namespace microkernel {
 
@@ -124,6 +124,8 @@ public:
 	virtual void submsg_router(void* msg);
 	// 内核消息通知
 	virtual void event_notice(void* msg);
+
+	friend class Kernel;
 
 private:
 	Kernel* kernel_;	///< 挂载内核

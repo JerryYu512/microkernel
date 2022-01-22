@@ -31,8 +31,9 @@
 #include <memory>
 #include <map>
 #include "extend.hpp"
+#include "router_externd.hpp"
 
-namespace ars {
+namespace bio {
 
 namespace microkernel {
 
@@ -44,20 +45,44 @@ public:
 	static const char* logo(void) {
 		return R"(
     										   _                           __                                  __
-  ____ _   _____   _____          ____ ___    (_)  _____   _____  ____    / /__  ___    _____   ____   ___    / /
- / __ `/  / ___/  / ___/ ______  / __ `__ \  / /  / ___/  / ___/ / __ \  / //_/ / _ \  / ___/  / __ \ / _ \  / / 
-/ /_/ /  / /     (__  ) /_____/ / / / / / / / /  / /__   / /    / /_/ / / ,<   /  __/ / /     / / / //  __/ / /  
-\__,_/  /_/     /____/         /_/ /_/ /_/ /_/   \___/  /_/     \____/ /_/|_|  \___/ /_/     /_/ /_/ \___/ /_/   
-                                                                                                                 
+   ____ ___    (_)  _____   _____  ____    / /__  ___    _____   ____   ___    / /
+  / __ `__ \  / /  / ___/  / ___/ / __ \  / //_/ / _ \  / ___/  / __ \ / _ \  / / 
+ / / / / / / / /  / /__   / /    / /_/ / / ,<   /  __/ / /     / / / //  __/ / /  
+/_/ /_/ /_/ /_/   \___/  /_/     \____/ /_/|_|  \___/ /_/     /_/ /_/ \___/ /_/   
+                                                                                  
 )";
 	}
+
+	int start(void) {
+		#if 0
+		初始化驱动模块
+		init driver extend
+		sub msg
+		// 初始化常规模块
+		init common extend
+
+		初始化路由模块线程池
+		  
+		#endif
+	}
+
+	void stop(void);
 
 	// 添加模块
 	void AddExtend(std::shared_ptr<Extend> extend) {
 		if (!driver_extend_) {
 			throw std::logic_error("driver extend must loading at first.");
 		}
+
+		if (extends_.end() != extends_.find(extend->info_.name_)) {
+			throw std::invalid_argument("extend exsit.");
+		}
+
+		extends_[extend->info_.name_] = extend;
 	}
+
+	// init extend
+	// fini extend
 
 private:
 	friend DriverExtend;
@@ -69,6 +94,8 @@ private:
 	}
 
 	DriverExtend* driver_extend_;	///< 驱动模块
+	RouterExtend* router_extend_;	///< 路由模块
+	// router_extend 路由模块
 	std::map<std::string, std::shared_ptr<Extend>> extends_;	///< 扩展模块
 };
 

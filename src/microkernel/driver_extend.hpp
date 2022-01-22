@@ -29,8 +29,9 @@
 
 #pragma once
 #include <string.h>
+#include <string>
 
-namespace ars {
+namespace bio {
 
 namespace microkernel {
 
@@ -44,22 +45,34 @@ class DriverExtend {
 public:
 	// 添加自身到内核中
 	DriverExtend(Kernel* kernel);
-	virtual ~DriverExtend():
+	virtual ~DriverExtend();
 
 public:
-	static const std::string driver_extend_name = "ars#microkernel#driver";
-	static const std::string driver_extend_version = "1.0.0";
+	// 驱动模块名称
+	static const std::string driver_extend_name;
+	// 驱动模块版本
+	static const std::string driver_extend_version;
 
 private:
 	friend class Kernel;
 
+	virtual void init(void) {
+		#if 0
+		1. 基本接入验证
+		2. 订阅平台消息
+		3. 订阅内部消息
+		#endif
+	}
+
 	// 由kernel调用，用户重载该接口来实现自身的微内核核心业务，如设备认证接入，消息路由分发等
 	virtual void loop(void) = 0;
+	// 1. 接入，认证，重连
+	// 2. 扩展模块user函数驱动
+	// 3. 内部消息分发，发布
 
 	// 定义基本的内核消息通知，如：内核上线，内核下线，扩展模块载入，扩展模块卸载，异常消息等
 	virtual void kernel_msg(void* msg) = 0;
 
-	// TODO:pub消息由此处处理：
 };
 
 } // namespace microkernel

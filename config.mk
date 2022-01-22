@@ -43,7 +43,7 @@ ST_LIBS_UT = #-lgtest
 SO_LIBS = -lz -lssl -lcrypto -lpthread -ldl -lrt # -lresolv
 
 DMARCROS := -DLANGUAGE_ZH -DWITH_OPENSSL -DWITH_ZLIB -DSOFT_VERSION=\"$(RELEASE_VERSION)\" \
-			-DARS_COMPILE_TIME=\""$(COMPILE_TIME)"\" -DBUILD_VERSION="\"$(BUILD_VERSION)"\"
+			-DBUILD_VERSION="\"$(BUILD_VERSION)"\"
 
 # 调试模式
 ifeq ($(DEBUG), n)

@@ -28,7 +28,7 @@
  */
 #pragma once
 
-namespace ars {
+namespace bio {
 
 namespace microkernel {
 

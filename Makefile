@@ -1,11 +1,11 @@
 # 目标
-TARGET := arsMicroKernel
+TARGET := bioMicroKernel
 # 单元测试目标
 UNIT_TEST_TARGET := $(TARGET)_ut
 ROOT_DIR := $(shell pwd)
 
 # 源码路径
-SRC_DIR := microkernel
+SRC_DIR := src/microkernel
 UT_DIR := unittest
 
 # 临时目录

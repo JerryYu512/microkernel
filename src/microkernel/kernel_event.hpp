@@ -28,10 +28,11 @@
  */
 #pragma once
 
-namespace ars {
+namespace bio {
 
 namespace microkernel {
 
+#if 0
 typedef enum : unsigned int {
     kOnline,                         	///< 设备上线
     kBreak,                          	///< 设备离线
@@ -41,6 +42,7 @@ typedef enum : unsigned int {
     kReconnectSuccess,              	///< 重连成功
     kHeartbeatIntervalChanged,     		///< 心跳间隔改变
 } EventType;
+#endif
 
 /**
  * @brief 内核事件消息
