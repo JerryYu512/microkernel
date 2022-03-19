@@ -30,6 +30,11 @@
 #pragma once
 #include <string.h>
 #include <string>
+#include <vector>
+#include <memory>
+#include <string>
+#include <thread>
+#include "typedef.hpp"
 
 namespace bio {
 
@@ -41,11 +46,13 @@ class Kernel;
  * @brief 驱动模块
  * 
  */
-class DriverExtend {
+class DriverExtend : public std::enable_shared_from_this<DriverExtend> {
 public:
 	// 添加自身到内核中
 	DriverExtend(Kernel* kernel);
-	virtual ~DriverExtend();
+	virtual ~DriverExtend() {
+		finit();
+	}
 
 public:
 	// 驱动模块名称
@@ -56,25 +63,27 @@ public:
 private:
 	friend class Kernel;
 
-	virtual void init(void) {
-		#if 0
-		1. 基本接入验证
-		2. 订阅平台消息
-		3. 订阅内部消息
-		#endif
-	}
+	virtual void init(void);
 
-	// 由kernel调用，用户重载该接口来实现自身的微内核核心业务，如设备认证接入，消息路由分发等
-	virtual void loop(void) = 0;
+	virtual void finit(void);
+
+	// 由kernel调用，用户重载该接口来实现自身的微内核核心业务，如设备认证接入，公共消息广播
+	virtual void loop(void);
 	// 1. 接入，认证，重连
 	// 2. 扩展模块user函数驱动
-	// 3. 内部消息分发，发布
 
 	// 定义基本的内核消息通知，如：内核上线，内核下线，扩展模块载入，扩展模块卸载，异常消息等
-	virtual void kernel_msg(void* msg) = 0;
+	virtual void kernel_msg(void* msg);
 
+	virtual void loop_task(void);
+
+private:
+	Kernel* kernel_;
+	ExtendStatus st_;
+	bool stop_;
+	std::thread loop_thread_;
 };
 
 } // namespace microkernel
 
-} // namespace ars
+} // namespace bio

@@ -29,6 +29,7 @@
 #pragma once
 #include <string>
 #include <stdint.h>
+#include <functional>
 #include "kernel_event.hpp"
 #include "typedef.hpp"
 
@@ -51,9 +52,10 @@ typedef enum {
  * @brief 默认订阅消息
  * 
  */
-struct DefaultSubMsg {
+struct DefaultSubPubMsg {
 	MsgType msg_type;								///< 消息类型
 	MsgQos qos;										///< 消息QOS
+	std::string topic;
 	std::string msg_version;						///< 消息版本
 	std::string compress;							///< 压缩算法，gzip
 	uint64_t seq;									///< 消息序列
@@ -67,28 +69,11 @@ struct DefaultSubMsg {
 	void* user_data;								///< 用户数据
 };
 
-/**
- * @brief 默认发布消息
- * 
- */
-struct DefaultPubMsg {
-	MsgType msg_type;								///< 消息类型
-	MsgQos qos;										///< 消息QOS
-	std::string msg_version;						///< 消息版本
-	std::string compress;							///< 压缩算法，gzip
-	uint64_t seq;									///< 消息序列
-	void* msg_ctx;									///< 消息内容
-	uint32_t msg_ctx_len;							///< 消息长度
-	std::string res_id;								///< 资源id
-	std::string res_type;							///< 资源类型
-	std::string module_name;						///< 模块名称
-	std::string msg_attr;							///< 消息特性：event-事件(pub用到)，attr-属性，service-服务(能力查询)，info-信息，upload-上传(pub)，result-结果
-	std::string msg_method;							///< 消息方法：report-上报(通知)，query-查询(参数，信息)，set_reply-设置响应(参数类)，operate-reply-操作响应(对于控制类)
-	void* user_data;								///< 用户数据
-};
+using DefaultSubMsg = DefaultSubPubMsg;
+using DefaultPubMsg = DefaultSubPubMsg;
 
 /**
- * @brief 模块间短连接消息
+ * @brief 模块间短连接消息rpc
  * 
  */
 struct DefualtExtendMsg {
@@ -102,6 +87,13 @@ struct DefualtExtendMsg {
 	uint32_t res_msg_len;			///< 应答消息长度
 };
 
+///< 广播消息
+struct DefaultBroadcastMsg {
+	std::string broadcast_name;		///< 谁广播的
+	void* msg;						///< 广播消息
+	uint32_t msg_len;				///< 消息长度
+};
+
 /**
  * @brief 插件信息
  * 
@@ -113,41 +105,68 @@ struct ExtendInfo {
 };
 
 // 插件定义
-// template <typename SubMsg, typename PubMsg>
 class Extend {
 public:
-	Extend(Kernel* kernel, const ExtendInfo& info);
-	Extend(Kernel* kernel, const std::string& name, const std::string& info, void* data=nullptr);
-	virtual ~Extend();
+	Extend(Kernel* kernel, const ExtendInfo& info) : kernel_(kernel), info_(info) {}
+	Extend(Kernel* kernel, const std::string& name, const std::string& version, void* data=nullptr)
+	{
+		kernel_ = kernel;
+		info_.name_ = name;
+		info_.version_ = version;
+		info_.user_data_ = data;
+	}
+	virtual ~Extend() {}
 
-	// 订阅消息路由
-	virtual void submsg_router(void* msg);
+	virtual void init(void) = 0;
+	virtual void finit(void) = 0;
+
+	// 被驱动模块调用的消息
+	virtual void user_yield(void) = 0;
+
+	// 平台订阅消息回调处理
+	virtual void submsg_router_callback(void* msg) = 0;
+	// 模块间消息处理
+	virtual void submsg_router_ipc(void* msg) = 0;
+	// rpc短链接消息处理
+	virtual void rpc_service(void* msg) = 0;
 	// 内核消息通知
-	virtual void event_notice(void* msg);
+	virtual void event_notice(void* msg) = 0;
+	// 广播消息处理
+	virtual void broadcast_notice(void* msg) = 0;
 
 	friend class Kernel;
 
-private:
+protected:
 	Kernel* kernel_;	///< 挂载内核
 	ExtendInfo info_;	///< 消息信息
 };
 
-// TODO:对插件进行偏特化
+///< 分配发布消息
+void* extend_alloc_pub_msg_ipc(Kernel* kernel, uint32_t msg_len);
+///< 复制发布消息
+void* extend_dup_msg_ipc(Kernel* kernel, void* msg);
 
-// 消息发布
-// template <typename PubMsg>
+///< 订阅
+KernelError extend_subscribe_ipc(Kernel* kernel, const std::string& extend_name, const std::string& topic);
+KernelError extend_unsubscribe_ipc(Kernel* kernel, const std::string& extend_name, const std::string& topic);
+///< 发布
+KernelError extend_publish_ipc(Kernel* kernel, void* msg);
+
+///< 模块间rpc调用
+KernelError extend_rpc(Kernel* kernel, void* msg);
+
+///< 平台消息订阅
+KernelError extend_subscribe(Kernel* kernel, extend_subscribe_callback cb);
+
+// 平台消息发布
 KernelError extend_pusmsg(Kernel *kernel, const void* msg);
 
-// 短连接消息发送
-// template <typename SendMsg>
-KernelError extend_sendmsg(Kernel *kernel, const void* msg);
+// 消息广播
+KernelError extend_broadcast_msg(Kernel* kernel, void* msg);
 
-// TODO:
-// 1.广播消息
-// 2.广播通知消息
-// 3.扩展发现查询
-// 4.消息重定向
+// 扩展模块检测
+bool extend_check(Kernel* kernel, const std::string& name);
 
 } // namespace microkernel
 
-} // namespace ars
+} // namespace bio

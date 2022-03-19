@@ -37,10 +37,10 @@ typedef enum : unsigned int {
     kOnline,                         	///< 设备上线
     kBreak,                          	///< 设备离线
     kSwitchover,                    	///< 接入地址切换
-    kInvalidAuth,                   	///< 验证码不合规
+    kInvalidAuth,                   	///< 认证失败
     kRuntimeError,                  	///< 运行时错误
     kReconnectSuccess,              	///< 重连成功
-    kHeartbeatIntervalChanged,     		///< 心跳间隔改变
+    kHeartbeatAbnormal,     		    ///< 心跳异常
 } EventType;
 #endif
 

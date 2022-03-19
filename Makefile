@@ -2,7 +2,7 @@
 TARGET := bioMicroKernel
 # 单元测试目标
 UNIT_TEST_TARGET := $(TARGET)_ut
-ROOT_DIR := $(shell pwd)
+export ROOT_DIR := $(shell pwd)
 
 # 源码路径
 SRC_DIR := src/microkernel
@@ -34,7 +34,8 @@ DEPS += $(UT_OBJECTS:%.o=%.d)
 default: $(TARGET)
 
 .PHONY: all
-all: pack demo ut
+# all: pack demo ut
+all: $(TARGET)
 
 # 生成配置头文件
 .PHONY: config
@@ -64,7 +65,8 @@ endif
 # 示例代码编译
 .PHONY: demo
 demo: $(TARGET)
-	@make -C samples ARS_INC_DIR=$(ROOT_DIR)/include ARS_LIB_DIR=$(ROOT_DIR)/build OUTPUT_DIR=$(ROOT_DIR)/build/samples
+	@mkdir -p $(ROOT_DIR)/build/samples
+	@make -C samples OUTPUT_DIR=$(ROOT_DIR)/build/samples ROOT_DIR=$(ROOT_DIR)
 
 # 单元测试
 ut: $(TARGET) $(UT_OBJECTS)
@@ -100,7 +102,7 @@ clean:
 
 # dependencies
 -include $(DEPS)
-$(BUILD_DIR)/%.o: %.c* $(CONFIG_HEADER)
+$(BUILD_DIR)/%.o: %.c*
 	@echo "\033[32m$(CXX) $<\033[0m"
 	@if [ ! -d $(dir $@) ]; then mkdir -p $(dir $@); fi;\
 	$(CXX) $(OBJCCFLAG) -MM -MT $@ -MF $(patsubst %.o, %.d, $@) $<; \
